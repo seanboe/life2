@@ -7,16 +7,19 @@ class Settings(Enum):
 
 # Character settings
 class GameSettings(Enum):
-  GAME_LOOPS            = 1000
+  GAME_LOOPS     = 1000
   PREDATOR_COLOR = "red"
   PREY_COLOR     = "blue"
-  CharacterWidth = 2
+  CharacterWidth = 10
 
 class CharacterDefaults(Enum):
-  PREY_MOVEMENT_RADIUS  = 7
-  PREY_SIGHT_RADIUS = 35
-  PREDATOR_MOVEMENT_RADIUS = 11
-  PREDATOR_SIGHT_RADIUS = 25
+  PREY_MOVEMENT_RADIUS  = 20
+  PREY_SIGHT_RADIUS = 60
+  PREDATOR_MOVEMENT_RADIUS = 30
+  PREDATOR_SIGHT_RADIUS = 45
+
+  # Initial hunger level
+  PREDATOR_KILL_SATURATION = 10
 
 class CharacterRole(Enum):
   PREDATOR = 0

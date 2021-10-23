@@ -33,11 +33,11 @@ def drawCharacters(window, characters):
     if character.role == CharacterRole.PREDATOR:
       c2 = Circle(Point(character.posX, character.posY), CharacterDefaults.PREDATOR_SIGHT_RADIUS.value)
       c2.setOutline("red")
-      # c2.draw(window)
+      c2.draw(window)
     if character.role == CharacterRole.PREY:
       c2 = Circle(Point(character.posX, character.posY), CharacterDefaults.PREY_SIGHT_RADIUS.value)
       c2.setOutline("blue")
-      # c2.draw(window)
+      c2.draw(window)
     c.draw(window)
 
 
@@ -47,14 +47,15 @@ def runSim(window):
   prey = []
 
   # This is initial creation of the characters
-  for x in range(0, rnd.randint(30, 35)):
+  for x in range(0, rnd.randint(4, 5)):
     predators.append(Predator(CharacterRole.PREDATOR, getRandomCharacterPosition("x"), getRandomCharacterPosition("y")))
-  for x in range(0, rnd.randint(75, 100)):
+  for x in range(0, rnd.randint(3, 8)):
     prey.append(Character(CharacterRole.PREY, getRandomCharacterPosition("x"), getRandomCharacterPosition("y")))
 
-  for cycle in range(0, GameSettings.GAME_LOOPS.value):
+  for cycle in range(1, GameSettings.GAME_LOOPS.value):
 
-    # Predators attack prey
+    # Predators look for and attack prey. Otherwise, they find a random position
+    # to move towards and travel there until they see prey
     for predator in predators:
       has_victim = False
       for victim in prey:
@@ -63,6 +64,7 @@ def runSim(window):
           predator.setTargetStatus(has_victim, victim.posX, victim.posY)
           
         if (predator.posX == victim.posX) and (predator.posY == victim.posY):
+          predator.giveFood()
           prey.remove(victim)
 
       if (not has_victim) and predator.has_victim:
@@ -72,13 +74,22 @@ def runSim(window):
 
       predator.moveByPoint(predator.targetX, predator.targetY, True)
 
+      # # Check if predators starve
+      # if predator.next_starve_cycle <= cycle:
+      #   predators.remove(predator)
+
     # Prey run away from predators
     for victim in prey:
       for predator in predators:
         if victim.canSee(predator.posX, predator.posY):
           victim.moveByPoint(predator.posX, predator.posY, False)
 
-    # time.sleep(2)
+    # Check if predators have starved
+    print(predators)
+    predators = [predator for predator in predators if cycle < predator.next_starve_cycle]
+    print(predators)
+
+    time.sleep(0.5)
 
     characters = predators + prey
     drawCharacters(window, characters)

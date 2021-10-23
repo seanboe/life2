@@ -62,7 +62,12 @@ class Predator(Character):
   
   has_victim = True
 
+  next_starve_cycle = CharacterDefaults.PREDATOR_KILL_SATURATION.value
+
   def setTargetStatus(self, has_target, targetX, targetY):
     self.has_victim = has_target
     self.targetX = targetX
     self.targetY = targetY
+
+  def giveFood(self):
+    self.next_starve_cycle += CharacterDefaults.PREDATOR_KILL_SATURATION.value

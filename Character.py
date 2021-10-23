@@ -58,12 +58,11 @@ class Character:
     self.age = newAge
 
 
-# class Predator(Character):
+class Predator(Character):
   
-#   has_target = False
-#   survey_coords = ()    # If a predator doesn't see anything, then it will begin going to a random coordinate held here
+  has_victim = True
 
-#   def setTargetStatus(self, has_target, *survey_coords):
-#     self.has_target = has_target
-
-#     self.survey_coords = survey_coords
+  def setTargetStatus(self, has_target, targetX, targetY):
+    self.has_victim = has_target
+    self.targetX = targetX
+    self.targetY = targetY

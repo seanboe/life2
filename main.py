@@ -3,8 +3,10 @@ import random as rnd
 import time
 
 from configuration import CharacterDefaults, Settings, CharacterRole, GameSettings
-from Character import Character
+from Character import Character, Predator
 
+FRAME_WIDTH  = Settings.FRAME_WIDTH.value
+FRAME_HEIGHT = Settings.FRAME_HEIGHT.value
 
 def drawCharacters(window, characters):
   # refill the window
@@ -34,9 +36,9 @@ def runSim(window):
 
   # This is initial creation of the characters
   for x in range(0, rnd.randint(3, 5)):
-    predators.append(Character(CharacterRole.PREDATOR, rnd.randint(0, Settings.FRAME_WIDTH.value), rnd.randint(0, Settings.FRAME_HEIGHT.value)))
+    predators.append(Predator(CharacterRole.PREDATOR, rnd.randint(0, FRAME_WIDTH), rnd.randint(0, FRAME_HEIGHT)))
   for x in range(0, rnd.randint(10, 15)):
-    prey.append(Character(CharacterRole.PREY, rnd.randint(0, Settings.FRAME_WIDTH.value), rnd.randint(0, Settings.FRAME_HEIGHT.value)))
+    prey.append(Character(CharacterRole.PREY, rnd.randint(0, FRAME_WIDTH), rnd.randint(0, FRAME_HEIGHT)))
 
   for cycle in range(0, GameSettings.GAME_LOOPS.value):
 
@@ -46,14 +48,17 @@ def runSim(window):
       for victim in prey:
         if predator.canSee(victim.posX, victim.posY):
           has_victim = True
-          predator.moveByPoint(victim.posX, victim.posY, True)
-
-        # The Predator is on the prey -> prey dies
+          predator.setTargetStatus(has_victim, victim.posX, victim.posY)
+          
         if (predator.posX == victim.posX) and (predator.posY == victim.posY):
           prey.remove(victim)
 
-      if not has_victim:
-        predator.moveByPoint(rnd.randint(0, Settings.FRAME_WIDTH.value), rnd.randint(0, Settings.FRAME_HEIGHT.value), True)
+      if (not has_victim) and predator.has_victim:
+        predator.setTargetStatus(has_victim, rnd.randint(0, FRAME_WIDTH), rnd.randint(0, FRAME_WIDTH))
+      elif (not has_victim) and (not predator.has_victim) and (predator.posX == predator.targetX) and (predator.posY == predator.targetY):
+        predator.setTargetStatus(has_victim, rnd.randint(0, FRAME_WIDTH), rnd.randint(0, FRAME_WIDTH))
+
+      predator.moveByPoint(predator.targetX, predator.targetY, True)
 
     # Prey run away from predators
     for victim in prey:
@@ -61,7 +66,7 @@ def runSim(window):
         if victim.canSee(predator.posX, predator.posY):
           victim.moveByPoint(predator.posX, predator.posY, False)
 
-    time.sleep(0.5)
+    time.sleep(2)
 
     characters = predators + prey
     drawCharacters(window, characters)

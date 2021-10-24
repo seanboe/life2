@@ -42,7 +42,7 @@ def runSim(canvas):
   prey = []
 
   # This is initial creation of the characters
-  for x in range(0, rnd.randint(2, 5)):
+  for x in range(0, rnd.randint(6, 8)):
     predators.append(Predator(getRandomCharacterPosition("x"), getRandomCharacterPosition("y"), Colors.RED.value, 0))
   for x in range(0, rnd.randint(5, 10)):
     prey.append(Prey(getRandomCharacterPosition("x"), getRandomCharacterPosition("y"), Colors.BLUE.value))
@@ -109,7 +109,6 @@ def runSim(canvas):
     pygame.time.wait(1000)
 
 def main():
-  # window = GraphWin("Predators", Settings.FRAME_WIDTH.value + 2 * FRAME_MARGIN, Settings.FRAME_HEIGHT.value + 2 * FRAME_MARGIN)
   pygame.init()
   canvas = pygame.display.set_mode((Settings.FRAME_WIDTH.value + 2 * FRAME_MARGIN, Settings.FRAME_HEIGHT.value + 2 * FRAME_MARGIN))
   runSim(canvas)

@@ -1,4 +1,3 @@
-from graphics import *        # https://mcsp.wartburg.edu/zelle/python/graphics/graphics.pdf
 import pygame, sys
 from pygame.locals import *
 import random as rnd
@@ -44,7 +43,7 @@ def runSim(canvas):
 
   # This is initial creation of the characters
   for x in range(0, rnd.randint(2, 5)):
-    predators.append(Predator(getRandomCharacterPosition("x"), getRandomCharacterPosition("y"), Colors.RED.value))
+    predators.append(Predator(getRandomCharacterPosition("x"), getRandomCharacterPosition("y"), Colors.RED.value, 0))
   for x in range(0, rnd.randint(5, 10)):
     prey.append(Prey(getRandomCharacterPosition("x"), getRandomCharacterPosition("y"), Colors.BLUE.value))
 
@@ -87,7 +86,7 @@ def runSim(canvas):
     predator_children = []
     if cycle % CharacterDefaults.PREDATOR_REPRODUCTION_CYCLES.value == 0:
       for predator in predators:
-        predator_children.append(predator.reproduce(Predator(predator.posX + rnd.randint(-10, 10), predator.posY + rnd.randint(-10, 10), Colors.RED.value)))
+        predator_children.append(predator.reproduce(Predator(predator.posX + rnd.randint(-10, 10), predator.posY + rnd.randint(-10, 10), Colors.RED.value, cycle)))
     predators += predator_children
 
     # Prey Reproduce

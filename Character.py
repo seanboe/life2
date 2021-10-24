@@ -1,7 +1,7 @@
 from tkinter.constants import X
 import math
 import random as rnd
-from configuration import CharacterRole, CharacterDefaults
+from configuration import CharacterRole, CharacterDefaults, Colors
 
 # Computes the distance between two points
 def find_distance(x1, y1, x2, y2):
@@ -12,12 +12,14 @@ def find_distance(x1, y1, x2, y2):
 # Declaration of Character Class, used to define the predators and the prey
 class Character:
 
-  def __init__(self, x, y):
+  def __init__(self, x, y, color):
     self.sight_radius = 0
     self.movement_radius = 0
 
     self.posX = x
     self.posY = y
+
+    self.color = color
 
     if self.role == CharacterRole.PREY:
       self.sight_radius = CharacterDefaults.PREY_SIGHT_RADIUS.value

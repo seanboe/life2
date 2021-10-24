@@ -10,7 +10,7 @@ class GameSettings(Enum):
   GAME_LOOPS     = 1000
   PREDATOR_COLOR = "red"
   PREY_COLOR     = "blue"
-  CharacterWidth = 10
+  CHARACTER_WIDTH = 10
 
 class CharacterDefaults(Enum):
 
@@ -31,3 +31,11 @@ class CharacterDefaults(Enum):
 class CharacterRole(Enum):
   PREDATOR = 0
   PREY     = 1
+
+class Colors(Enum):
+  BLACK = (0, 0, 0)
+  WHITE = (255, 255, 255)
+  BLUE  = (0, 0, 255)
+  RED   = (255, 0, 0)
+  GREEN = (0, 255, 0)
+

@@ -1,9 +1,10 @@
-from graphics import *        # https://mcsp.wartburg.edu/zelle/python/graphics/graphics.pdf
+import pygame, sys
+from pygame.locals import *
 import random as rnd
 import time
 
-from configuration import CharacterDefaults, Settings, CharacterRole, GameSettings
-from Character import Character, Predator
+from configuration import CharacterDefaults, Settings, CharacterRole, GameSettings, Colors
+from Character import Character, Predator, Prey
 
 FRAME_WIDTH  = Settings.FRAME_WIDTH.value
 FRAME_HEIGHT = Settings.FRAME_HEIGHT.value
@@ -15,42 +16,40 @@ def getRandomCharacterPosition(x_or_y):
   elif x_or_y == "y":
     return rnd.randint(FRAME_MARGIN, FRAME_MARGIN + FRAME_HEIGHT)
 
+def drawText(canvas, text, font_size, posX, posY):
+  font = pygame.font.SysFont("didot.ttc", font_size)
+  text_img = font.render(text, True, Colors.BLACK.value)
+  canvas.blit(text_img, (posX, posY))
+  pygame.display.update()
 
-def drawCharacters(window, characters):
-  # refill the window
-  window_background = Rectangle(Point(0, 0), Point(FRAME_WIDTH + 2 * FRAME_MARGIN, FRAME_HEIGHT + 2 * FRAME_MARGIN))
-  window_background.setFill("white")
-  window_background.setOutline("black")
-  window_background.draw(window)
+def drawCharacters(canvas, characters):
+  # Clear the canvas
+  canvas.fill(Colors.WHITE.value)
 
-  frame = Rectangle(Point(FRAME_MARGIN, FRAME_MARGIN), Point(FRAME_MARGIN + FRAME_WIDTH, FRAME_MARGIN + FRAME_HEIGHT))
-  frame.setOutline("black")
-  frame.draw(window)
+  # Draw the frame
+  pygame.draw.rect(canvas, Colors.BLACK.value, (FRAME_MARGIN, FRAME_MARGIN, FRAME_WIDTH, FRAME_HEIGHT), 2)
 
+  # draw the characters
   for character in characters:
-    c = Circle(Point(character.posX, character.posY), GameSettings.CharacterWidth.value)
-    c.setOutline(GameSettings.PREDATOR_COLOR.value if character.role == CharacterRole.PREDATOR else GameSettings.PREY_COLOR.value)
-    if character.role == CharacterRole.PREDATOR:
-      c2 = Circle(Point(character.posX, character.posY), CharacterDefaults.PREDATOR_SIGHT_RADIUS.value)
-      c2.setOutline("red")
-      c2.draw(window)
-    if character.role == CharacterRole.PREY:
-      c2 = Circle(Point(character.posX, character.posY), CharacterDefaults.PREY_SIGHT_RADIUS.value)
-      c2.setOutline("blue")
-      c2.draw(window)
-    c.draw(window)
+    pygame.draw.circle(canvas, character.color, (character.posX, character.posY), GameSettings.CHARACTER_WIDTH.value, 2)
+    pygame.draw.circle(canvas, character.color, (character.posX, character.posY), character.sight_radius, 2)
+  pygame.display.update()
 
 
-def runSim(window):
+def runSim(canvas):
 
   predators = []
   prey = []
 
   # This is initial creation of the characters
-  for x in range(0, rnd.randint(4, 5)):
-    predators.append(Predator(CharacterRole.PREDATOR, getRandomCharacterPosition("x"), getRandomCharacterPosition("y")))
-  for x in range(0, rnd.randint(3, 8)):
-    prey.append(Character(CharacterRole.PREY, getRandomCharacterPosition("x"), getRandomCharacterPosition("y")))
+  for x in range(0, rnd.randint(2, 5)):
+    predators.append(Predator(getRandomCharacterPosition("x"), getRandomCharacterPosition("y"), Colors.RED.value, 0))
+  for x in range(0, rnd.randint(5, 10)):
+    prey.append(Prey(getRandomCharacterPosition("x"), getRandomCharacterPosition("y"), Colors.BLUE.value))
+
+  characters = predators + prey
+
+  drawCharacters(canvas, characters)
 
   for cycle in range(1, GameSettings.GAME_LOOPS.value):
 
@@ -74,10 +73,6 @@ def runSim(window):
 
       predator.moveByPoint(predator.targetX, predator.targetY, True)
 
-      # # Check if predators starve
-      # if predator.next_starve_cycle <= cycle:
-      #   predators.remove(predator)
-
     # Prey run away from predators
     for victim in prey:
       for predator in predators:
@@ -85,22 +80,41 @@ def runSim(window):
           victim.moveByPoint(predator.posX, predator.posY, False)
 
     # Check if predators have starved
-    print(predators)
     predators = [predator for predator in predators if cycle < predator.next_starve_cycle]
-    print(predators)
 
-    time.sleep(0.5)
+    # Predators reproduce
+    predator_children = []
+    if cycle % CharacterDefaults.PREDATOR_REPRODUCTION_CYCLES.value == 0:
+      for predator in predators:
+        predator_children.append(predator.reproduce(Predator(predator.posX + rnd.randint(-10, 10), predator.posY + rnd.randint(-10, 10), Colors.RED.value, cycle)))
+    predators += predator_children
+
+    # Prey Reproduce
+    prey_children = []
+    if cycle % CharacterDefaults.PREY_REPRODUCTION_CYCLES.value == 0:
+      for victim in prey:
+        prey_children.append(victim.reproduce(Prey(victim.posX + rnd.randint(-50, 50), victim.posY + rnd.randint(-50, 50), Colors.BLUE.value)))
+    prey += prey_children
+
 
     characters = predators + prey
-    drawCharacters(window, characters)
-    Text(Point(30, 10), f"Cycle: {cycle}").draw(window)
+    drawCharacters(canvas, characters)
+    drawText(canvas, f"Cycle: {cycle}", 24, 20, 20)
+
+    for event in pygame.event.get():
+      if event.type == QUIT:
+          pygame.quit()
+          sys.exit()
+
+    pygame.time.wait(1000)
 
 def main():
-  window = GraphWin("Predators", Settings.FRAME_WIDTH.value + 2 * FRAME_MARGIN, Settings.FRAME_HEIGHT.value + 2 * FRAME_MARGIN)
-  runSim(window)
-  time.sleep(5)
-  window.close()
+  # window = GraphWin("Predators", Settings.FRAME_WIDTH.value + 2 * FRAME_MARGIN, Settings.FRAME_HEIGHT.value + 2 * FRAME_MARGIN)
+  pygame.init()
+  canvas = pygame.display.set_mode((Settings.FRAME_WIDTH.value + 2 * FRAME_MARGIN, Settings.FRAME_HEIGHT.value + 2 * FRAME_MARGIN))
+  runSim(canvas)
+  pygame.quit()
+  sys.exit()
 
 if __name__ == "__main__":
   main()
-

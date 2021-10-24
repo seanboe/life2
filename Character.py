@@ -1,6 +1,7 @@
 from tkinter.constants import X
 import math
-from configuration import CharacterDefaults, CharacterRole
+import random as rnd
+from configuration import CharacterRole, CharacterDefaults, Colors
 
 # Computes the distance between two points
 def find_distance(x1, y1, x2, y2):
@@ -11,13 +12,14 @@ def find_distance(x1, y1, x2, y2):
 # Declaration of Character Class, used to define the predators and the prey
 class Character:
 
-  def __init__(self, predator_prey, x, y):
-    self.role = predator_prey
+  def __init__(self, x, y, color):
     self.sight_radius = 0
     self.movement_radius = 0
 
     self.posX = x
     self.posY = y
+
+    self.color = color
 
     if self.role == CharacterRole.PREY:
       self.sight_radius = CharacterDefaults.PREY_SIGHT_RADIUS.value
@@ -34,7 +36,7 @@ class Character:
       return True
     else:
       return False
-
+    
   def moveByPoint(self, coordX, coordY, go_towards_point):
     dX = coordX - self.posX
     dY = coordY - self.posY
@@ -54,20 +56,46 @@ class Character:
     self.posX += int(movement_distance * math.cos(angle))
     self.posY += int(movement_distance * math.sin(angle))
 
-  def updateAge(self, newAge):
-    self.age = newAge
+    return self
 
+  def reproduce(self, child):
+
+    if self.role == CharacterRole.PREDATOR:
+      SIGHT_RADIUS_MUTATION_FACTOR = (rnd.random() * CharacterDefaults.PREDATOR_MAX_SIGHT_RADIUS_PERCENT_MUTATION.value) / 100
+    elif self.role == CharacterRole.PREY:
+      SIGHT_RADIUS_MUTATION_FACTOR = (rnd.random() * CharacterDefaults.PREY_MAX_SIGHT_RADIUS_PERCENT_MUTATION.value) / 100
+
+    if self.role == CharacterRole.PREDATOR:
+      MOVEMENT_RADIUS_MUTATION_FACTOR = (rnd.random() * CharacterDefaults.PREDATOR_MOVEMENT_RADIUS_MUTATION_FACTOR.value) / 100
+    elif self.role == CharacterRole.PREY:
+      MOVEMENT_RADIUS_MUTATION_FACTOR = (rnd.random() * CharacterDefaults.PREY_MOVEMENT_RADIUS_MUTATION_FACTOR.value) / 100
+
+    child.sight_radius = self.sight_radius + (self.sight_radius * SIGHT_RADIUS_MUTATION_FACTOR) * (-1 if rnd.random() < 0.5 else 1)
+    child.movement_radius = self.movement_radius + (self.movement_radius * MOVEMENT_RADIUS_MUTATION_FACTOR) * (-1 if rnd.random() < 0.5 else 1)
+
+    return child
 
 class Predator(Character):
-  
+
+  role = CharacterRole.PREDATOR
+
   has_victim = True
 
-  next_starve_cycle = CharacterDefaults.PREDATOR_KILL_SATURATION.value
+  def __init__(self, x, y, color, current_cycle):
+    super().__init__(x, y, color)
+    self.next_starve_cycle = current_cycle + CharacterDefaults.PREDATOR_KILL_SATURATION.value
 
   def setTargetStatus(self, has_target, targetX, targetY):
     self.has_victim = has_target
     self.targetX = targetX
     self.targetY = targetY
 
+    return self
+
   def giveFood(self):
     self.next_starve_cycle += CharacterDefaults.PREDATOR_KILL_SATURATION.value
+
+    return self
+
+class Prey(Character):
+  role = CharacterRole.PREY

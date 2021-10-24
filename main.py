@@ -3,7 +3,7 @@ import random as rnd
 import time
 
 from configuration import CharacterDefaults, Settings, CharacterRole, GameSettings
-from Character import Character, Predator
+from Character import Character, Predator, Prey
 
 FRAME_WIDTH  = Settings.FRAME_WIDTH.value
 FRAME_HEIGHT = Settings.FRAME_HEIGHT.value
@@ -47,10 +47,10 @@ def runSim(window):
   prey = []
 
   # This is initial creation of the characters
-  for x in range(0, rnd.randint(4, 5)):
-    predators.append(Predator(CharacterRole.PREDATOR, getRandomCharacterPosition("x"), getRandomCharacterPosition("y")))
-  for x in range(0, rnd.randint(3, 8)):
-    prey.append(Character(CharacterRole.PREY, getRandomCharacterPosition("x"), getRandomCharacterPosition("y")))
+  for x in range(0, rnd.randint(0, 0)):
+    predators.append(Predator(getRandomCharacterPosition("x"), getRandomCharacterPosition("y")))
+  for x in range(0, rnd.randint(0, 1)):
+    prey.append(Prey(getRandomCharacterPosition("x"), getRandomCharacterPosition("y")))
 
   for cycle in range(1, GameSettings.GAME_LOOPS.value):
 
@@ -74,10 +74,6 @@ def runSim(window):
 
       predator.moveByPoint(predator.targetX, predator.targetY, True)
 
-      # # Check if predators starve
-      # if predator.next_starve_cycle <= cycle:
-      #   predators.remove(predator)
-
     # Prey run away from predators
     for victim in prey:
       for predator in predators:
@@ -85,9 +81,21 @@ def runSim(window):
           victim.moveByPoint(predator.posX, predator.posY, False)
 
     # Check if predators have starved
-    print(predators)
     predators = [predator for predator in predators if cycle < predator.next_starve_cycle]
-    print(predators)
+
+    # Predators reproduce
+    predator_children = []
+    if cycle % CharacterDefaults.PREDATOR_REPRODUCTION_CYCLES.value == 0:
+      for predator in predators:
+        predator_children.append(predator.reproduce(Predator(predator.posX + rnd.randint(-10, 10), predator.posY + rnd.randint(-10, 10))))
+    predators += predator_children
+
+    # Prey Reproduce
+    prey_children = []
+    if cycle % CharacterDefaults.PREY_REPRODUCTION_CYCLES.value == 0:
+      for victim in prey:
+        prey_children.append(victim.reproduce(Prey(victim.posX + rnd.randint(-50, 50), victim.posY + rnd.randint(-50, 50))))
+    prey += prey_children
 
     time.sleep(0.5)
 

@@ -1,7 +1,6 @@
 import pygame, sys
 from pygame.locals import *
 import random as rnd
-import time
 
 from configuration import CharacterDefaults, Settings, CharacterRole, GameSettings, Colors
 from Character import Character, Predator, Prey

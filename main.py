@@ -31,7 +31,7 @@ def drawCharacters(canvas, characters):
   # draw the characters
   for character in characters:
     pygame.draw.circle(canvas, character.color, (character.posX, character.posY), GameSettings.CHARACTER_WIDTH.value, 2)
-    pygame.draw.circle(canvas, character.color, (character.posX, character.posY), character.sight_radius, 2)
+    # pygame.draw.circle(canvas, character.color, (character.posX, character.posY), character.sight_radius, 2)
   pygame.display.update()
 
 
@@ -41,9 +41,9 @@ def runSim(canvas):
   prey = []
 
   # This is initial creation of the characters
-  for x in range(0, rnd.randint(6, 8)):
+  for x in range(0, rnd.randint(50, 60)):
     predators.append(Predator(getRandomCharacterPosition("x"), getRandomCharacterPosition("y"), Colors.RED.value, 0))
-  for x in range(0, rnd.randint(5, 10)):
+  for x in range(0, rnd.randint(90, 100)):
     prey.append(Prey(getRandomCharacterPosition("x"), getRandomCharacterPosition("y"), Colors.BLUE.value))
 
   characters = predators + prey
@@ -95,6 +95,17 @@ def runSim(canvas):
         prey_children.append(victim.reproduce(Prey(victim.posX + rnd.randint(-50, 50), victim.posY + rnd.randint(-50, 50), Colors.BLUE.value)))
     prey += prey_children
 
+    # The frame margin (area around the frame) is a kill zone for prey
+    in_frame_prey = []
+    for victim in prey:
+      if victim.posY < FRAME_MARGIN or victim.posY > FRAME_MARGIN + FRAME_HEIGHT:
+        continue
+      elif victim.posX < FRAME_MARGIN or victim.posX > FRAME_WIDTH + FRAME_MARGIN:
+        continue
+      else:
+        # copy = victim
+        in_frame_prey.append(victim)
+    prey = in_frame_prey
 
     characters = predators + prey
     drawCharacters(canvas, characters)
@@ -105,7 +116,7 @@ def runSim(canvas):
           pygame.quit()
           sys.exit()
 
-    pygame.time.wait(1000)
+    pygame.time.wait(100)
 
 def main():
   pygame.init()

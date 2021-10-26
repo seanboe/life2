@@ -13,6 +13,8 @@ def find_distance(x1, y1, x2, y2):
 class Character:
 
   def __init__(self, x, y, color):
+    self.is_alive = True
+
     self.sight_radius = 0
     self.movement_radius = 0
 

@@ -1,6 +1,7 @@
 import pygame, sys
 from pygame.locals import *
 import random as rnd
+import matplotlib as plt
 
 from configuration import CharacterDefaults, Settings, CharacterRole, GameSettings, Colors
 from Character import Character, Predator, Prey
@@ -57,13 +58,21 @@ def runSim(canvas):
     for predator in predators:
       has_victim = False
       for victim in prey:
+        if not victim.is_alive:
+          continue
+
         if predator.canSee(victim.posX, victim.posY):
-          has_victim = True
-          predator.setTargetStatus(has_victim, victim.posX, victim.posY)
+          if (predator.posX == victim.posX) and (predator.posY == victim.posY):
+            predator.giveFood()
+            victim.is_alive = False
+            has_victim = False
+          else:
+            has_victim = True
+            predator.setTargetStatus(has_victim, victim.posX, victim.posY)
           
         if (predator.posX == victim.posX) and (predator.posY == victim.posY):
           predator.giveFood()
-          prey.remove(victim)
+          victim.is_alive = False
 
       if (not has_victim) and predator.has_victim:
         predator.setTargetStatus(has_victim, getRandomCharacterPosition("x"), getRandomCharacterPosition("y"))
@@ -77,9 +86,6 @@ def runSim(canvas):
       for predator in predators:
         if victim.canSee(predator.posX, predator.posY):
           victim.moveByPoint(predator.posX, predator.posY, False)
-
-    # Check if predators have starved
-    predators = [predator for predator in predators if cycle < predator.next_starve_cycle]
 
     # Predators reproduce
     predator_children = []
@@ -96,21 +102,31 @@ def runSim(canvas):
     prey += prey_children
 
     # The frame margin (area around the frame) is a kill zone for prey
-    in_frame_prey = []
     for victim in prey:
       if victim.posY < FRAME_MARGIN or victim.posY > FRAME_MARGIN + FRAME_HEIGHT:
-        continue
+        victim.is_alive = False
       elif victim.posX < FRAME_MARGIN or victim.posX > FRAME_WIDTH + FRAME_MARGIN:
-        continue
-      else:
-        # copy = victim
-        in_frame_prey.append(victim)
-    prey = in_frame_prey
+        victim.is_alive = False
 
-    characters = predators + prey
+    # Check if predators have starved
+    for predator in predators:
+      if cycle >= predator.next_starve_cycle:
+        predator.is_alive = False
+
+    # Only keep the living characters
+    predators = [predator for predator in predators if predator.is_alive]
+    prey      = [victim for victim in prey if victim.is_alive]
+
+    characters = prey + predators
     drawCharacters(canvas, characters)
     drawText(canvas, f"Cycle: {cycle}", 24, 20, 20)
 
+    if len(predators) == 0 or len(prey) == 0:
+      print(f"Terminated on cycle {cycle}")
+      pygame.quit()
+      sys.exit()
+
+    # Check for program termination through pygame
     for event in pygame.event.get():
       if event.type == QUIT:
           pygame.quit()

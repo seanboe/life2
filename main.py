@@ -10,6 +10,14 @@ FRAME_WIDTH  = Settings.FRAME_WIDTH.value
 FRAME_HEIGHT = Settings.FRAME_HEIGHT.value
 FRAME_MARGIN = Settings.FRAME_MARGIN.value
 
+DATA_OUTPUT_FILE = "data_output.txt"
+
+def outputData(predators, prey, cycle):
+  output_file = open(DATA_OUTPUT_FILE, "a")
+  new_data = f"{len(predators)},{len(prey)},{cycle}\n"
+  output_file.write(new_data)
+  output_file.close()
+
 def getRandomCharacterPosition(x_or_y):
   if x_or_y == "x":
     return rnd.randint(FRAME_MARGIN, FRAME_MARGIN + FRAME_WIDTH)
@@ -126,17 +134,23 @@ def runSim(canvas):
       pygame.quit()
       sys.exit()
 
+    outputData(predators, prey, cycle)
+
     # Check for program termination through pygame
     for event in pygame.event.get():
       if event.type == QUIT:
           pygame.quit()
           sys.exit()
 
-    pygame.time.wait(100)
+    pygame.time.wait(GameSettings.CYCLE_DELAY.value)
 
 def main():
   pygame.init()
   canvas = pygame.display.set_mode((Settings.FRAME_WIDTH.value + 2 * FRAME_MARGIN, Settings.FRAME_HEIGHT.value + 2 * FRAME_MARGIN))
+
+  # Clear the output file
+  open(DATA_OUTPUT_FILE, "w").close()
+  
   runSim(canvas)
   pygame.quit()
   sys.exit()

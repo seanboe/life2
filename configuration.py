@@ -7,10 +7,11 @@ class Settings(Enum):
 
 # Character settings
 class GameSettings(Enum):
-  GAME_LOOPS     = 1000
-  PREDATOR_COLOR = "red"
-  PREY_COLOR     = "blue"
+  GAME_LOOPS      = 1000
+  PREDATOR_COLOR  = "red"
+  PREY_COLOR      = "blue"
   CHARACTER_WIDTH = 5
+  CYCLE_DELAY     = 250
 
 class CharacterDefaults(Enum):
 

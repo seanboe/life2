@@ -29,7 +29,7 @@ Everything you need to configure is in `configuration.py`.
 
 I've also included some smaller scripts to make it easier to analyze the game. The game outputs 
 character statistics/data to `data_output.txt`, which makes it easy to do post-analysis. To graph 
-predators and prey vs game cycle, run 'plotter.py' - this requires installation of 'matplotlib'.
+predators and prey vs game cycle, run `plotter.py` - this requires installation of `matplotlib`.
 
 In the future, I'll also add other scripts to graph the rates of natural selection, which could be fun
 to look at.

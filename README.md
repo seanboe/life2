@@ -34,4 +34,4 @@ predators and prey vs game cycle, run `plotter.py` - this requires installation 
 In the future, I'll also add other scripts to graph the rates of natural selection, which could be fun
 to look at.
 
-MIT License
+[MIT License](https://github.com/seanboe/life2/blob/master/LICENSE)
